@@ -2,6 +2,11 @@ import cv2
 import numpy as np
 import os
 
+def contains_circle(image_path):
+    image = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
+    blurred_image = cv2.GaussianBlur(image, (9, 9), 2)
+    circles = cv2.HoughCircles(blurred_image, cv2.HOUGH_GRADIENT, dp=1.2, minDist=30, param1=50, param2=30, minRadius=10, maxRadius=100)
+    return circles is not None
 
 def segment_coins(image_path, threshold_value, min_contour_area, number_image):
     # Načtení obrázku
@@ -49,6 +54,11 @@ def segment_coins(image_path, threshold_value, min_contour_area, number_image):
         coin_count += 1
         cv2.imwrite(f"coin_{coin_count}.png", cropped_coin)
 
+        # Kontrola, zda obrázek obsahuje kruh
+        if not contains_circle(f"coin_{coin_count}.png"):
+            os.remove(f"coin_{coin_count}.png")
+
+
     print(f"Z obrázků segmentováno a uloženo {coin_count} mincí.\n")
 
 
@@ -58,7 +68,7 @@ b=input("Kolik obrázků chcete segmentovat?\n")
 for j in range(int(b)):
     os.chdir(r"L:\CVUT\1roc\projekt1") # Pro funkčnost přepsat cestu do složky s obrázky
     print("Zadejte cestu k obrázku: ")
-    segment_coins(input(), 200, 500, j)
+    segment_coins(input(), 160, 300, j)
     #print("Zadejte cestu k obrázku, hodnotu pro binarizaci (doporučená 200), minimální obrys mince (doporučená 500). [Vstupní hodnoty oddělujte enterem.]")
     #segment_coins(input(), int(input()), int(input()), j)
 
