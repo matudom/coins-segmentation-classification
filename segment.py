@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 import os
+from pathlib import Path
 
 def contains_circle(image_path):
     image = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
@@ -52,25 +53,41 @@ def segment_coins(image_path, threshold_value, min_contour_area, number_image):
 
         # Uložení vyříznuté mince
         coin_count += 1
-        cv2.imwrite(f"coin_{coin_count}.png", cropped_coin)
+        cv2.imwrite(f"coin_{coin_count}.jpg", cropped_coin)
 
         # Kontrola, zda obrázek obsahuje kruh
-        if not contains_circle(f"coin_{coin_count}.png"):
-            os.remove(f"coin_{coin_count}.png")
+        if not contains_circle(f"coin_{coin_count}.jpg"):
+            os.remove(f"coin_{coin_count}.jpg")
 
 
     print(f"Z obrázků segmentováno a uloženo {coin_count} mincí.\n")
 
+if __name__ == "__main__":
 
-b=input("Kolik obrázků chcete segmentovat?\n")
+    # Zeptání se uživatele na cestu k složce
+    folder_path = input("Vyberte složku s obrázky, které chcete segmentovat: \n")
 
+    # Pokus o změnu aktuálního pracovního adresáře na zadanou složku
+    try:
+        os.chdir(folder_path)
+        print(f"Aktuální pracovní adresář byl změněn na: {os.getcwd()}")
+    except FileNotFoundError:
+        print("Chyba: Zadaná cesta neexistuje.")
+        exit(1)
+    except NotADirectoryError:
+        print("Chyba: Zadaná cesta není složka.")
+        exit(1)
+    except PermissionError:
+        print("Chyba: Nemáte oprávnění přistupovat k této složce.")
+        exit(1)
 
-for j in range(int(b)):
-    os.chdir(r"L:\CVUT\1roc\projekt1") # Pro funkčnost přepsat cestu do složky s obrázky
-    print("Zadejte cestu k obrázku: ")
-    segment_coins(input(), 160, 300, j)
-    #print("Zadejte cestu k obrázku, hodnotu pro binarizaci (doporučená 200), minimální obrys mince (doporučená 500). [Vstupní hodnoty oddělujte enterem.]")
-    #segment_coins(input(), int(input()), int(input()), j)
+    list_images = os.listdir()
+    list_images = [x for x in list_images if x.endswith(".jpg")]
 
+    for j in range(len(list_images)):
+        os.chdir(folder_path)
+        segment_coins(list_images[j], 125, 300, j)
+        #print("Zadejte cestu k obrázku, hodnotu pro binarizaci (doporučená 200), minimální obrys mince (doporučená 500). [Vstupní hodnoty oddělujte enterem.]")
+        #segment_coins(input(), int(input()), int(input()), j)
 
-#segment_coins("testimage4.jpg", 200, 500, 1) # (200, 500 - testimage4.jpg) 
+    #segment_coins("testimage4.jpg", 200, 500, 1) # (200, 500 - testimage4.jpg)

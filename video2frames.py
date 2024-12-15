@@ -10,7 +10,7 @@ def extract_frames(video_path, output_folder):
     video_capture = cv2.VideoCapture(video_path)
     if not video_capture.isOpened(): # Kontrola, zda se video podařilo otevřít
         print("Chyba: video se nepodařilo otevřít.")
-        return
+        exit(1)
 
     frame_count = 0
     while True:
@@ -20,7 +20,7 @@ def extract_frames(video_path, output_folder):
             break
 
         # Uložení sníkmku jako obrázek
-        frame_filename = os.path.join(output_folder, f"frame_{frame_count:04d}.png")
+        frame_filename = os.path.join(output_folder, f"frame_{frame_count:04d}.jpg")
         cv2.imwrite(frame_filename, frame)
         frame_count += 1
 
